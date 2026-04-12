@@ -102,6 +102,7 @@ out center;
                         .bindPopup(parkingDescription);
                 }
             });
+            document.getElementById("loading").style.display = "none";
         });
 
 });
