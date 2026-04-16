@@ -59,12 +59,12 @@ navigator.geolocation.getCurrentPosition(pos => {
     const query = `
 [out:json];
 (
-  node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  way(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  relation(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  node(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  way(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  relation(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  node(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  way(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  relation(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  node(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  way(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  relation(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
 );
 out center;
 `;
@@ -83,7 +83,6 @@ out center;
 
                 if (lat && lon) {
                     const isDisabledSpace = el.tags?.parking_space === 'disabled';
-                    const icon = parkingIcon(el);
                     let parkingDescription = 'Access: ' + el.tags.access;
                     if (!isDisabledSpace) {
                         parkingDescription += '<br/>Capacity: ' + el.tags['capacity:disabled'];
