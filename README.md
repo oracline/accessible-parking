@@ -2,21 +2,26 @@
 
 ## Development
 
-1. run
-  ```
-  npm install
-  ```
-  to install all package dependencies
+### Install dependencies
+```
+npm install
+```
 
-2. Since this map uses tiles from OpenStreetMap and they require a valid Referer header, which means, also in local development, the web page need to be served via http.
+### Configuration
 
-  In this repo run
-  ```
-  npx serve
-  ```
-  and navigate to the local address in your browser.
+Copy `app-config.example.json` to `app-config.json` and set config data, if applicable.
 
-## Initialization of the package
+### Run http server
+
+ince this map uses tiles from OpenStreetMap and they require a valid Referer header, which means, also in local development, the web page need to be served via http.
+
+In this repo run
+```
+npx serve
+```
+and navigate to the local address in your browser.
+
+### Use pre-commit
 
 1. install pre-commit, e.g.
   ```
