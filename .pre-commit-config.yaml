@@ -7,3 +7,8 @@ repos:
       - id: check-merge-conflict
       - id: end-of-file-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.23.0  # Use the latest version
+    hooks:
+      - id: eslint
+        args: ['--config', 'eslint.config.js', '--fix']

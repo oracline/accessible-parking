@@ -1,0 +1,13 @@
+{
+  "name": "media",
+  "version": "1.0.0",
+  "main": "script.js",
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+      "eslint": "^9.24.0",
+      "serve": "^14.2.6"
+  }
+}
