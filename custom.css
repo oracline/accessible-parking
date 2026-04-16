@@ -1,3 +1,10 @@
+:root {
+  --red: #ca6868;
+  --gray: #a7a7a7;
+  --blue: #52a3fc;
+  --green: #7abe50;
+}
+
 #map { height: 100vh; }
 
 #loading {
@@ -24,4 +31,20 @@
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+.marker-icon-default {
+    color: var(--gray);
+}
+
+.marker-icon-customers {
+    color: var(--blue);
+}
+
+.marker-icon-success {
+    color: var(--green);
+}
+
+.marker-icon-warning {
+    color: var(--red);
 }
