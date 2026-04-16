@@ -83,7 +83,6 @@ out center;
 
                 if (lat && lon) {
                     const isDisabledSpace = el.tags?.parking_space === 'disabled';
-                    const icon = parkingIcon(el);
                     let parkingDescription = 'Access: ' + el.tags.access;
                     if (!isDisabledSpace) {
                         parkingDescription += '<br/>Capacity: ' + el.tags['capacity:disabled'];
