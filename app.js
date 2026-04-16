@@ -1,26 +1,19 @@
-let CONFIG = {};
-
-async function loadConfig() {
+async function loadConfig(pathToConfigFile) {
     try {
-        const res = await fetch('app-config.json');
+        const res = await fetch(pathToConfigFile);
 
         if (!res.ok) {
-            throw new Error(`Loading the file app-config.json failed: HTTP ${res.status}`);
+            throw new Error(`Loading the config file failed: HTTP ${res.status}`);
         }
 
-        CONFIG = await res.json();
+        config = await res.json();
+        return config;
 
     } catch (err) {
-        console.error('Loading data from app-config.json failed:', err);
+        console.error('Loading data from the config file failed:', err);
         throw err;
     }
 }
-
-const endpoints = [
-    'https://overpass.kumi.systems/api/interpreter',
-    'https://overpass-api.de/api/interpreter',
-    'https://lz4.overpass-api.de/api/interpreter'
-];
 
 function fetchWithTimeout(url, options, timeout = 12000) {
     return Promise.race([
@@ -31,8 +24,14 @@ function fetchWithTimeout(url, options, timeout = 12000) {
     ]);
 }
 
-async function fetchOverpass(query) {
-    for (const url of endpoints) {
+async function fetchOverpass(query, config) {
+    if (config.USE_LOCAL_DATA) {
+        const res = await fetch(config.LOCAL_DATA_SOURCE);
+
+        return await res.json();
+    }
+
+    for (const url of config.ENDPOINTS) {
         try {
             console.log('Trying:', url);
 
@@ -62,7 +61,7 @@ async function fetchOverpass(query) {
 
 
 async function init() {
-    await loadConfig();
+    const config = await loadConfig('app-config.json');
 
     const map = L.map('map').setView([52.52, 13.405], 14);
 
@@ -91,7 +90,7 @@ async function init() {
 out center;
 `;
 
-        fetchOverpass(query)
+        fetchOverpass(query, config)
             .then(data => {
                 data.elements.forEach(el => {
                     let lat, lon;
