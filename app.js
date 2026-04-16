@@ -25,11 +25,6 @@ function fetchWithTimeout(url, options, timeout = 12000) {
 }
 
 async function fetchOverpass(query, config) {
-    if (config.USE_LOCAL_DATA) {
-        const res = await fetch(config.LOCAL_DATA_SOURCE);
-
-        return await res.json();
-    }
 
     for (const url of config.ENDPOINTS) {
         try {
@@ -183,7 +178,7 @@ async function init() {
 out center;
 `;
 
-        fetchOverpass(query, config)
+        fetchWithCache(lat, lon, radius, query, config)
             .then(data => {
                 data.elements.forEach(parkingObject => {
                     let lat, lon;
