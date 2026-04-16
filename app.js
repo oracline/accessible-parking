@@ -71,6 +71,21 @@ function capacityString(parkingObject) {
     return '?';
 }
 
+function iconCssClass(parkingObject) {
+    const pre = 'marker-icon-';
+    if (!parkingObject.tags.access) {
+        return pre+'default';
+    }
+    if (['no', 'private'].includes(parkingObject.tags.access)) {
+        return pre+'warning';
+    }
+    if (['yes'].includes(parkingObject.tags.access)) {
+        return pre+'success';
+    }
+
+    return pre+'customers';
+}
+
 
 async function init() {
     const config = await loadConfig('app-config.json');
