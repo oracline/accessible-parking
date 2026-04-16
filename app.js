@@ -58,6 +58,18 @@ async function fetchOverpass(query, config) {
     throw new Error('All Overpass endpoints failed');
 }
 
+function capacityString(parkingObject) {
+    if (parkingObject.tags?.parking_space === 'disabled') {
+        return '▢';
+    }
+
+    const capacityDisabled = parseInt(parkingObject.tags?.['capacity:disabled']);
+    if (!isNaN(capacityDisabled)) {
+        return String(capacityDisabled);
+    }
+
+    return '?';
+}
 
 
 async function init() {
