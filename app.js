@@ -32,6 +32,11 @@ function fetchWithTimeout(url, options, timeout = 12000) {
 }
 
 async function fetchOverpass(query) {
+    if (CONFIG.USE_LOCAL_DATA) {
+        const res = await fetch(CONFIG.LOCAL_DATA_SOURCE);
+        return await res.json();
+    }
+
     for (const url of endpoints) {
         try {
             console.log('Trying:', url);
