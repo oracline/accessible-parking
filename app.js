@@ -58,7 +58,60 @@ async function fetchOverpass(query, config) {
     throw new Error('All Overpass endpoints failed');
 }
 
+function capacityString(parkingObject) {
+    if (parkingObject.tags?.parking_space === 'disabled') {
+        return '▢';
+    }
 
+    const capacityDisabled = parseInt(parkingObject.tags?.['capacity:disabled']);
+    if (!isNaN(capacityDisabled)) {
+        return String(capacityDisabled);
+    }
+
+    return '?';
+}
+
+function iconCssClass(parkingObject) {
+    const pre = 'marker-icon-';
+    if (!parkingObject.tags.access) {
+        return pre+'default';
+    }
+    if (['no', 'private'].includes(parkingObject.tags.access)) {
+        return pre+'warning';
+    }
+    if (['yes'].includes(parkingObject.tags.access)) {
+        return pre+'success';
+    }
+
+    return pre+'customers';
+}
+
+function parkingIcon(parkingObject) {
+
+    const capacity = capacityString(parkingObject);
+    const cssClass = iconCssClass(parkingObject);
+    const icon = L.divIcon({
+        className: cssClass,
+        html: `
+<svg width="36" height="48" viewBox="0 0 36 48">
+  <!-- Pin shape -->
+  <path d="M18 0C10 0 4 6 4 14c0 10 14 34 14 34s14-24 14-34C32 6 26 0 18 0z" fill="currentColor"/>
+
+  <!-- Inner circle -->
+  <circle cx="18" cy="14" r="10" fill="white"/>
+
+  <!-- Text -->
+  <text x="18" y="18" text-anchor="middle" font-size="10" fill="currentColor" font-weight="bold">
+    ${capacity}
+  </text>
+</svg>
+        `,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+
+    return icon;
+}
 
 async function init() {
     const config = await loadConfig('app-config.json');
@@ -92,27 +145,23 @@ out center;
 
         fetchOverpass(query, config)
             .then(data => {
-                data.elements.forEach(el => {
+                data.elements.forEach(parkingObject => {
                     let lat, lon;
-                    if (el.type === 'node') {
-                        lat = el.lat;
-                        lon = el.lon;
-                    } else if (el.center) {
-                        lat = el.center.lat;
-                        lon = el.center.lon;
+                    if (parkingObject.type === 'node') {
+                        lat = parkingObject.lat;
+                        lon = parkingObject.lon;
+                    } else if (parkingObject.center) {
+                        lat = parkingObject.center.lat;
+                        lon = parkingObject.center.lon;
                     }
 
                     if (lat && lon) {
-                        const isDisabledSpace = el.tags?.parking_space === 'disabled';
-                        let parkingDescription = 'Access: ' + el.tags.access;
+                        const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
+                        let parkingDescription = 'Access: ' + parkingObject.tags.access;
                         if (!isDisabledSpace) {
-                            parkingDescription += '<br/>Capacity: ' + el.tags['capacity:disabled'];
+                            parkingDescription += '<br/>Capacity: ' + parkingObject.tags['capacity:disabled'];
                         }
-                        const icon = L.divIcon({
-                            html: isDisabledSpace ? '♿' : '🅿️',
-                            className: '',
-                            iconSize: [20, 20]
-                        });
+                        const icon = parkingIcon(parkingObject);
                         L.marker([lat, lon], { icon } ).addTo(map)
                             .bindPopup(parkingDescription);
                     }
