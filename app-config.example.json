@@ -2,5 +2,6 @@
     "DEFAULT_SEARCH_RADIUS": 10000,
     "USE_LOCAL_DATA": true,
     "LOCAL_DATA_SOURCE": "data/exported-eg-from-overpass-turbo.json",
-    "ENDPOINTS": []
+    "ENDPOINTS": [],
+    "CACHE_TIME_IN_MINUTES" = 120
 }

@@ -58,6 +58,45 @@ async function fetchOverpass(query, config) {
     throw new Error('All Overpass endpoints failed');
 }
 
+function getCacheKey(lat, lon, radius) {
+    return `parking_${lat.toFixed(3)}_${lon.toFixed(3)}_${radius}`;
+}
+
+async function fetchWithCache(lat, lon, radius, query, config) {
+    if (config.USE_LOCAL_DATA) {
+        const res = await fetch(config.LOCAL_DATA_SOURCE);
+
+        return await res.json();
+    }
+
+    const key = getCacheKey(lat, lon, radius);
+
+    const cached = localStorage.getItem(key);
+
+    if (cached) {
+        const parsed = JSON.parse(cached);
+
+        // check expiry
+        if (Date.now() - parsed.timestamp < config.CACHE_TIME_IN_MINUTES * 60 * 1000) {
+            console.log('⚡ using cache');
+            return parsed.data;
+        }
+    }
+
+    console.log('🌐 fetching from API');
+
+    const data = await fetchOverpass(query, config);
+
+    localStorage.setItem(key, JSON.stringify({
+        timestamp: Date.now(),
+        data
+    }));
+
+    return data;
+}
+
+
+
 function capacityString(parkingObject) {
     if (parkingObject.tags?.parking_space === 'disabled') {
         return '▢';
