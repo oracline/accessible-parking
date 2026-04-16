@@ -1,3 +1,20 @@
+let CONFIG = {};
+
+async function loadConfig() {
+    try {
+        const res = await fetch('app-config.json');
+
+        if (!res.ok) {
+            throw new Error(`Loading the file app-config.json failed: HTTP ${res.status}`);
+        }
+
+        CONFIG = await res.json();
+
+    } catch (err) {
+        console.error('Loading data from app-config.json failed:', err);
+        throw err;
+    }
+}
 
 const endpoints = [
     'https://overpass.kumi.systems/api/interpreter',
@@ -45,6 +62,8 @@ async function fetchOverpass(query) {
 
 
 async function init() {
+    await loadConfig();
+
     const map = L.map('map').setView([52.52, 13.405], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
