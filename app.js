@@ -161,11 +161,7 @@ out center;
                         if (!isDisabledSpace) {
                             parkingDescription += '<br/>Capacity: ' + parkingObject.tags['capacity:disabled'];
                         }
-                        const icon = L.divIcon({
-                            html: isDisabledSpace ? '♿' : '🅿️',
-                            className: '',
-                            iconSize: [20, 20]
-                        });
+                        const icon = parkingIcon(parkingObject);
                         L.marker([lat, lon], { icon } ).addTo(map)
                             .bindPopup(parkingDescription);
                     }
