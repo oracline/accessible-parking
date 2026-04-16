@@ -92,21 +92,21 @@ out center;
 
         fetchOverpass(query, config)
             .then(data => {
-                data.elements.forEach(el => {
+                data.elements.forEach(parkingObject => {
                     let lat, lon;
-                    if (el.type === 'node') {
-                        lat = el.lat;
-                        lon = el.lon;
-                    } else if (el.center) {
-                        lat = el.center.lat;
-                        lon = el.center.lon;
+                    if (parkingObject.type === 'node') {
+                        lat = parkingObject.lat;
+                        lon = parkingObject.lon;
+                    } else if (parkingObject.center) {
+                        lat = parkingObject.center.lat;
+                        lon = parkingObject.center.lon;
                     }
 
                     if (lat && lon) {
-                        const isDisabledSpace = el.tags?.parking_space === 'disabled';
-                        let parkingDescription = 'Access: ' + el.tags.access;
+                        const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
+                        let parkingDescription = 'Access: ' + parkingObject.tags.access;
                         if (!isDisabledSpace) {
-                            parkingDescription += '<br/>Capacity: ' + el.tags['capacity:disabled'];
+                            parkingDescription += '<br/>Capacity: ' + parkingObject.tags['capacity:disabled'];
                         }
                         const icon = L.divIcon({
                             html: isDisabledSpace ? '♿' : '🅿️',
