@@ -1,4 +1,5 @@
 {
     "USE_LOCAL_DATA": true,
-    "LOCAL_DATA_SOURCE": "data/exported-eg-from-overpass-turbo.json"
+    "LOCAL_DATA_SOURCE": "data/exported-eg-from-overpass-turbo.json",
+    "ENDPOINTS": []
 }

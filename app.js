@@ -15,12 +15,6 @@ async function loadConfig(pathToConfigFile) {
     }
 }
 
-const endpoints = [
-    'https://overpass.kumi.systems/api/interpreter',
-    'https://overpass-api.de/api/interpreter',
-    'https://lz4.overpass-api.de/api/interpreter'
-];
-
 function fetchWithTimeout(url, options, timeout = 12000) {
     return Promise.race([
         fetch(url, options),
@@ -37,7 +31,7 @@ async function fetchOverpass(query, config) {
         return await res.json();
     }
 
-    for (const url of endpoints) {
+    for (const url of config.ENDPOINTS) {
         try {
             console.log('Trying:', url);
 
