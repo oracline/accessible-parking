@@ -86,6 +86,32 @@ function iconCssClass(parkingObject) {
     return pre+'customers';
 }
 
+function parkingIcon(parkingObject) {
+
+    const capacity = capacityString(parkingObject);
+    const cssClass = iconCssClass(parkingObject);
+    const icon = L.divIcon({
+        className: cssClass,
+        html: `
+<svg width="36" height="48" viewBox="0 0 36 48">
+  <!-- Pin shape -->
+  <path d="M18 0C10 0 4 6 4 14c0 10 14 34 14 34s14-24 14-34C32 6 26 0 18 0z" fill="currentColor"/>
+
+  <!-- Inner circle -->
+  <circle cx="18" cy="14" r="10" fill="white"/>
+
+  <!-- Text -->
+  <text x="18" y="18" text-anchor="middle" font-size="10" fill="currentColor" font-weight="bold">
+    ${capacity}
+  </text>
+</svg>
+        `,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+
+    return icon;
+}
 
 async function init() {
     const config = await loadConfig('app-config.json');
