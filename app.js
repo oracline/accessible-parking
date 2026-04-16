@@ -115,6 +115,7 @@ function parkingIcon(parkingObject) {
 
 async function init() {
     const config = await loadConfig('app-config.json');
+    const radius = config.DEFAULT_SEARCH_RADIUS;
 
     const map = L.map('map').setView([52.52, 13.405], 14);
 
@@ -133,12 +134,12 @@ async function init() {
         const query = `
 [out:json];
 (
-  node(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  way(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  relation(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  node(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  way(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  relation(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  way(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  relation(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  node(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  way(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  relation(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
 );
 out center;
 `;
