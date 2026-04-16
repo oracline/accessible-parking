@@ -10,7 +10,7 @@
 
 2. Since this map uses tiles from OpenStreetMap and they require a valid Referer header, which means, also in local development, the web page need to be served via http.
 
-  In this repo run 
+  In this repo run
   ```
   npx serve
   ```

@@ -12,3 +12,10 @@ repos:
     hooks:
       - id: eslint
         args: ['--config', 'eslint.config.js', '--fix']
+  - repo: local
+    hooks:
+      - id: run-stylelint-css-checks
+        name: Run CSS checks with stylelint
+        entry: npx stylelint --config stylelint.config.js --fix *.css
+        language: system
+        pass_filenames: false
