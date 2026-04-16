@@ -39,7 +39,7 @@ async function fetchOverpass(query) {
         }
     }
 
-  throw new Error("All Overpass endpoints failed");
+    throw new Error('All Overpass endpoints failed');
 }
 
 const map = L.map('map').setView([52.52, 13.405], 14);
