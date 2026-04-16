@@ -25,11 +25,6 @@ function fetchWithTimeout(url, options, timeout = 12000) {
 }
 
 async function fetchOverpass(query, config) {
-    if (config.USE_LOCAL_DATA) {
-        const res = await fetch(config.LOCAL_DATA_SOURCE);
-
-        return await res.json();
-    }
 
     for (const url of config.ENDPOINTS) {
         try {
@@ -57,6 +52,45 @@ async function fetchOverpass(query, config) {
 
     throw new Error('All Overpass endpoints failed');
 }
+
+function getCacheKey(lat, lon, radius) {
+    return `parking_${lat.toFixed(3)}_${lon.toFixed(3)}_${radius}`;
+}
+
+async function fetchWithCache(lat, lon, radius, query, config) {
+    if (config.USE_LOCAL_DATA) {
+        const res = await fetch(config.LOCAL_DATA_SOURCE);
+
+        return await res.json();
+    }
+
+    const key = getCacheKey(lat, lon, radius);
+
+    const cached = localStorage.getItem(key);
+
+    if (cached) {
+        const parsed = JSON.parse(cached);
+
+        // check expiry
+        if (Date.now() - parsed.timestamp < config.CACHE_TIME_IN_MINUTES * 60 * 1000) {
+            console.log('⚡ using cache');
+            return parsed.data;
+        }
+    }
+
+    console.log('🌐 fetching from API');
+
+    const data = await fetchOverpass(query, config);
+
+    localStorage.setItem(key, JSON.stringify({
+        timestamp: Date.now(),
+        data
+    }));
+
+    return data;
+}
+
+
 
 function capacityString(parkingObject) {
     if (parkingObject.tags?.parking_space === 'disabled') {
@@ -115,6 +149,7 @@ function parkingIcon(parkingObject) {
 
 async function init() {
     const config = await loadConfig('app-config.json');
+    const radius = config.DEFAULT_SEARCH_RADIUS;
 
     const map = L.map('map').setView([52.52, 13.405], 14);
 
@@ -133,17 +168,17 @@ async function init() {
         const query = `
 [out:json];
 (
-  node(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  way(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  relation(around:10000,${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  node(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  way(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  relation(around:10000,${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  way(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  relation(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  node(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  way(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  relation(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
 );
 out center;
 `;
 
-        fetchOverpass(query, config)
+        fetchWithCache(lat, lon, radius, query, config)
             .then(data => {
                 data.elements.forEach(parkingObject => {
                     let lat, lon;
