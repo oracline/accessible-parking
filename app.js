@@ -168,8 +168,8 @@ function parkingIcon(parkingObject) {
   </text>
 </svg>
         `,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        iconSize: [36, 48],
+        iconAnchor: [18, 48]
     });
 
     return icon;
