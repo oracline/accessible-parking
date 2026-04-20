@@ -108,7 +108,15 @@ async function fetchWithCache(lat, lon, radius, query, config) {
 
     console.log('🌐 fetching from API');
 
-    const data = await fetchOverpass(query, config);
+    const res = await fetch('overpass.php', {
+        method: 'POST',
+        body: query
+    });
+
+    const text = await res.text();
+
+    const data = JSON.parse(text);
+
 
     localStorage.setItem(key, JSON.stringify({
         timestamp: Date.now(),
