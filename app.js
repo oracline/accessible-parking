@@ -233,7 +233,7 @@ out center;
 
             L.marker([pLat, pLon], { icon })
                 .addTo(markerLayer)
-                .bindPopup(popupContent);
+                .bindPopup(popupContent, { offset: L.point(0, -30) });
         }
     });
 
@@ -263,7 +263,7 @@ async function init() {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-    document.getElementById('locBtn').addEventListener('click', () => {
+    document.getElementById('loc-btn').addEventListener('click', () => {
         navigator.geolocation.getCurrentPosition(
             pos => {
                 const lat = pos.coords.latitude;
@@ -277,13 +277,25 @@ async function init() {
         );
     });
 
-    document.getElementById('searchBtn').addEventListener('click', async () => {
+    document.getElementById('search-btn').addEventListener('click', async () => {
         const value = document.getElementById('search').value;
         const location = await searchAddress(value);
         const lat = parseFloat(location.lat);
         const lon = parseFloat(location.lon);
         addParkingMarkers(lat, lon, location.display_name, radius, map, markerLayer, config);
     });
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menu-btn');
+
+    menuBtn.addEventListener('click', () => {
+        const isOpen = sidebar.classList.toggle('open');
+        menuBtn.textContent = isOpen ? '✕' : '☰';
+    });
+
+    map.on('click', () => {
+        sidebar.classList.remove('open');
+    });
+
 }
 
 init();
