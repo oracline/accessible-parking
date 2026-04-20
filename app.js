@@ -15,6 +15,25 @@ async function loadConfig(pathToConfigFile) {
     }
 }
 
+
+async function searchAddress(query) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+
+    if (!res.ok) {
+        throw new Error(`Geocoding failed: HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    if (!data.length) {
+        throw new Error('Adresse nicht gefunden');
+    }
+
+    return data[0];
+}
+
 function fetchWithTimeout(url, options, timeout = 12000) {
     return Promise.race([
         fetch(url, options),
