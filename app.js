@@ -43,44 +43,6 @@ async function searchAddress(query) {
     return data[0];
 }
 
-function fetchWithTimeout(url, options, timeout = 12000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Timeout')), timeout)
-        )
-    ]);
-}
-
-async function fetchOverpass(query, config) {
-
-    for (const url of config.ENDPOINTS) {
-        try {
-            console.log('Trying:', url);
-
-            const res = await fetchWithTimeout(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: query
-            });
-
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
-            }
-
-            const data = await res.json();
-            console.log('Success with:', url);
-            return data;
-
-        } catch (err) {
-            console.warn('Failed:', url, err);
-            await new Promise(r => setTimeout(r, 300));
-        }
-    }
-
-    throw new Error('All Overpass endpoints failed');
-}
-
 function getCacheKey(lat, lon, radius) {
     return `parking_${lat.toFixed(3)}_${lon.toFixed(3)}_${radius}`;
 }
@@ -108,7 +70,15 @@ async function fetchWithCache(lat, lon, radius, query, config) {
 
     console.log('🌐 fetching from API');
 
-    const data = await fetchOverpass(query, config);
+    const res = await fetch('overpass.php', {
+        method: 'POST',
+        body: query
+    });
+
+    const text = await res.text();
+
+    const data = JSON.parse(text);
+
 
     localStorage.setItem(key, JSON.stringify({
         timestamp: Date.now(),
