@@ -223,6 +223,20 @@ out center;
     hideLoading();
 }
 
+function addParkingMarkers(lat, lon, label, radius, map, markerLayer, config) {
+    map.setView([lat, lon], 14);
+
+    markerLayer.clearLayers();
+
+    L.marker([lat, lon]).addTo(markerLayer)
+        .bindPopup(label)
+        .openPopup();
+
+    loadParkingData(lat, lon, radius, map, markerLayer, config);
+}
+
+
+
 async function init() {
     const config = await loadConfig('app-config.json');
     const radius = config.DEFAULT_SEARCH_RADIUS;
