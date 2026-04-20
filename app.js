@@ -233,7 +233,7 @@ out center;
 
             L.marker([pLat, pLon], { icon })
                 .addTo(markerLayer)
-                .bindPopup(popupContent);
+                .bindPopup(popupContent, { offset: L.point(0, -30) });
         }
     });
 
