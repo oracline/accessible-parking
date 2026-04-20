@@ -13,7 +13,7 @@ Copy `app-config.example.json` to `app-config.json` and set config data, if appl
 
 ### Run http server
 
-ince this map uses tiles from OpenStreetMap and they require a valid Referer header, which means, also in local development, the web page need to be served via http.
+Since this map uses tiles from OpenStreetMap and they require a valid Referer header, which means, also in local development, the web page need to be served via http.
 
 In this repo run
 ```

@@ -15,6 +15,25 @@ async function loadConfig(pathToConfigFile) {
     }
 }
 
+
+async function searchAddress(query) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+
+    if (!res.ok) {
+        throw new Error(`Geocoding failed: HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    if (!data.length) {
+        throw new Error('Adresse nicht gefunden');
+    }
+
+    return data[0];
+}
+
 function fetchWithTimeout(url, options, timeout = 12000) {
     return Promise.race([
         fetch(url, options),
@@ -147,25 +166,8 @@ function parkingIcon(parkingObject) {
     return icon;
 }
 
-async function init() {
-    const config = await loadConfig('app-config.json');
-    const radius = config.DEFAULT_SEARCH_RADIUS;
-
-    const map = L.map('map').setView([52.52, 13.405], 14);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-
-    // Standort holen
-    navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        map.setView([lat, lon], 10);
-
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('Du bist hier')
-            .openPopup();
-
-        const query = `
+async function loadParkingData(lat, lon, radius, map, config) {
+    const query = `
 [out:json];
 (
   node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
@@ -178,31 +180,74 @@ async function init() {
 out center;
 `;
 
-        fetchWithCache(lat, lon, radius, query, config)
-            .then(data => {
-                data.elements.forEach(parkingObject => {
-                    let lat, lon;
-                    if (parkingObject.type === 'node') {
-                        lat = parkingObject.lat;
-                        lon = parkingObject.lon;
-                    } else if (parkingObject.center) {
-                        lat = parkingObject.center.lat;
-                        lon = parkingObject.center.lon;
-                    }
+    document.getElementById('loading').style.display = 'block';
 
-                    if (lat && lon) {
-                        const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
-                        let parkingDescription = 'Access: ' + parkingObject.tags.access;
-                        if (!isDisabledSpace) {
-                            parkingDescription += '<br/>Capacity: ' + parkingObject.tags['capacity:disabled'];
-                        }
-                        const icon = parkingIcon(parkingObject);
-                        L.marker([lat, lon], { icon } ).addTo(map)
-                            .bindPopup(parkingDescription);
-                    }
-                });
-                document.getElementById('loading').style.display = 'none';
-            });
+    const data = await fetchWithCache(lat, lon, radius, query, config);
+
+    data.elements.forEach(parkingObject => {
+        let pLat, pLon;
+
+        if (parkingObject.type === 'node') {
+            pLat = parkingObject.lat;
+            pLon = parkingObject.lon;
+        } else if (parkingObject.center) {
+            pLat = parkingObject.center.lat;
+            pLon = parkingObject.center.lon;
+        }
+
+        if (pLat && pLon) {
+            const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
+
+            let parkingDescription = 'Access: ' + parkingObject.tags?.access;
+
+            if (!isDisabledSpace) {
+                parkingDescription += '<br/>Capacity: ' + parkingObject.tags?.['capacity:disabled'];
+            }
+
+            const icon = parkingIcon(parkingObject);
+
+            L.marker([pLat, pLon], { icon })
+                .addTo(map)
+                .bindPopup(parkingDescription);
+        }
+    });
+
+    document.getElementById('loading').style.display = 'none';
+}
+
+async function init() {
+    const config = await loadConfig('app-config.json');
+    const radius = config.DEFAULT_SEARCH_RADIUS;
+
+    const map = L.map('map').setView([52.52, 13.405], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+    // Standort holen
+    navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        map.setView([lat, lon], 14);
+
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup('Du bist hier')
+            .openPopup();
+
+        loadParkingData(lat, lon, radius, map, config);
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+        const value = document.getElementById('search').value;
+        const location = await searchAddress(value);
+        const lat = parseFloat(location.lat);
+        const lon = parseFloat(location.lon);
+        map.setView([lat, lon], 14);
+
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup(location.display_name)
+            .openPopup();
+
+        loadParkingData(lat, lon, radius, map, config);
     });
 }
 

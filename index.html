@@ -10,10 +10,24 @@
 	  <link rel="stylesheet" type="text/css" href="custom.css">
   </head>
   <body>
-    <div id="loading">
-      <div class="spinner"></div>
+
+    <div id="container">
+      <div id="sidebar">
+        <h2>Barrrierefrei Parken</h2>
+
+        <!-- Search -->
+        <input id="search" type="text" placeholder="Enter address..." />
+        <button id="searchBtn">Search</button>
+
+      </div>
+
+      <div id="loading">
+        <div class="spinner"></div>
+      </div>
+      <div id="map"></div>
+      <script src="app.js"></script>
+
     </div>
-    <div id="map"></div>
-    <script src="app.js"></script>
+
   </body>
 </html>
