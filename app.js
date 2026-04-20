@@ -15,8 +15,16 @@ async function loadConfig(pathToConfigFile) {
     }
 }
 
+function showLoading() {
+    document.getElementById('loading').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loading').classList.remove('active');
+}
 
 async function searchAddress(query) {
+    showLoading();
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
 
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
@@ -31,6 +39,7 @@ async function searchAddress(query) {
         throw new Error('Adresse nicht gefunden');
     }
 
+    hideLoading();
     return data[0];
 }
 
@@ -167,6 +176,7 @@ function parkingIcon(parkingObject) {
 }
 
 async function loadParkingData(lat, lon, radius, map, config) {
+    showLoading();
     const query = `
 [out:json];
 (
@@ -179,8 +189,6 @@ async function loadParkingData(lat, lon, radius, map, config) {
 );
 out center;
 `;
-
-    document.getElementById('loading').style.display = 'block';
 
     const data = await fetchWithCache(lat, lon, radius, query, config);
 
@@ -212,7 +220,7 @@ out center;
         }
     });
 
-    document.getElementById('loading').style.display = 'none';
+    hideLoading();
 }
 
 async function init() {
