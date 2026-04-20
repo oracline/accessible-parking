@@ -175,7 +175,7 @@ function parkingIcon(parkingObject) {
     return icon;
 }
 
-async function loadParkingData(lat, lon, radius, map, config) {
+async function loadParkingData(lat, lon, radius, map, markerLayer, config) {
     showLoading();
     const query = `
 [out:json];
@@ -215,7 +215,7 @@ out center;
             const icon = parkingIcon(parkingObject);
 
             L.marker([pLat, pLon], { icon })
-                .addTo(map)
+                .addTo(markerLayer)
                 .bindPopup(parkingDescription);
         }
     });
@@ -242,20 +242,22 @@ async function init() {
     const radius = config.DEFAULT_SEARCH_RADIUS;
 
     const map = L.map('map').setView([52.52, 13.405], 14);
+    const markerLayer = L.layerGroup().addTo(map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-    // Standort holen
-    navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        map.setView([lat, lon], 14);
-
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('Du bist hier')
-            .openPopup();
-
-        loadParkingData(lat, lon, radius, map, config);
+    document.getElementById('locBtn').addEventListener('click', () => {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                addParkingMarkers(lat, lon, 'Du bist hier', radius, map, markerLayer, config);
+            },
+            err => {
+                alert('Standort konnte nicht abgerufen werden');
+                console.error(err);
+            }
+        );
     });
 
     document.getElementById('searchBtn').addEventListener('click', async () => {
@@ -263,13 +265,7 @@ async function init() {
         const location = await searchAddress(value);
         const lat = parseFloat(location.lat);
         const lon = parseFloat(location.lon);
-        map.setView([lat, lon], 14);
-
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup(location.display_name)
-            .openPopup();
-
-        loadParkingData(lat, lon, radius, map, config);
+        addParkingMarkers(lat, lon, location.display_name, radius, map, markerLayer, config);
     });
 }
 
