@@ -263,7 +263,7 @@ async function init() {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-    document.getElementById('locBtn').addEventListener('click', () => {
+    document.getElementById('loc-btn').addEventListener('click', () => {
         navigator.geolocation.getCurrentPosition(
             pos => {
                 const lat = pos.coords.latitude;
@@ -277,7 +277,7 @@ async function init() {
         );
     });
 
-    document.getElementById('searchBtn').addEventListener('click', async () => {
+    document.getElementById('search-btn').addEventListener('click', async () => {
         const value = document.getElementById('search').value;
         const location = await searchAddress(value);
         const lat = parseFloat(location.lat);
