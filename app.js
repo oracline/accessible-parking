@@ -212,6 +212,10 @@ out center;
     const data = await fetchWithCache(lat, lon, radius, query, config);
 
     data.elements.forEach(parkingObject => {
+        if (['no', '0'].includes(parkingObject.tags['capacity:disabled'])) {
+            return;
+        }
+
         let pLat, pLon;
 
         if (parkingObject.type === 'node') {
