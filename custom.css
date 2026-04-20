@@ -3,6 +3,9 @@
   --gray: #a7a7a7;
   --blue: #52a3fc;
   --green: #7abe50;
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 #map {
