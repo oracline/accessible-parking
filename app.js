@@ -175,6 +175,25 @@ function parkingIcon(parkingObject) {
     return icon;
 }
 
+function buildPopupContent(parkingObject) {
+    const tags = parkingObject.tags || {};
+
+    let html = '<b>Details</b><br/>';
+
+    for (const key in tags) {
+        html += `<b>${key}</b>: ${tags[key]}<br/>`;
+    }
+
+    html += '<hr/><b>Metadaten</b><br/>';
+    if (parkingObject.id) {
+        html += `id: ${parkingObject.id}<br/>`;
+    }
+    if (parkingObject.type) {
+        html += `type: ${parkingObject.type}<br/>`;
+    }
+    return html;
+}
+
 async function loadParkingData(lat, lon, radius, map, markerLayer, config) {
     showLoading();
     const query = `
@@ -193,6 +212,10 @@ out center;
     const data = await fetchWithCache(lat, lon, radius, query, config);
 
     data.elements.forEach(parkingObject => {
+        if (['no', '0'].includes(parkingObject.tags['capacity:disabled'])) {
+            return;
+        }
+
         let pLat, pLon;
 
         if (parkingObject.type === 'node') {
@@ -204,19 +227,13 @@ out center;
         }
 
         if (pLat && pLon) {
-            const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
-
-            let parkingDescription = 'Access: ' + parkingObject.tags?.access;
-
-            if (!isDisabledSpace) {
-                parkingDescription += '<br/>Capacity: ' + parkingObject.tags?.['capacity:disabled'];
-            }
 
             const icon = parkingIcon(parkingObject);
+            const popupContent = buildPopupContent(parkingObject);
 
             L.marker([pLat, pLon], { icon })
                 .addTo(markerLayer)
-                .bindPopup(parkingDescription);
+                .bindPopup(popupContent);
         }
     });
 
