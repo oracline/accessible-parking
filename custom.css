@@ -83,3 +83,9 @@
     transform: translateX(0);
   }
 }
+
+.btn {
+    display: inline-block;
+    padding: .2rem .5rem;
+    margin-top: 1rem;
+}
