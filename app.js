@@ -284,6 +284,18 @@ async function init() {
         const lon = parseFloat(location.lon);
         addParkingMarkers(lat, lon, location.display_name, radius, map, markerLayer, config);
     });
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menu-btn');
+
+    menuBtn.addEventListener('click', () => {
+        const isOpen = sidebar.classList.toggle('open');
+        menuBtn.textContent = isOpen ? '✕' : '☰';
+    });
+
+    map.on('click', () => {
+        sidebar.classList.remove('open');
+    });
+
 }
 
 init();
