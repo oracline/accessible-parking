@@ -227,7 +227,7 @@ async function init() {
     navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        map.setView([lat, lon], 10);
+        map.setView([lat, lon], 14);
 
         L.marker([lat, lon]).addTo(map)
             .bindPopup('Du bist hier')
