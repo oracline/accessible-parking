@@ -15,8 +15,16 @@ async function loadConfig(pathToConfigFile) {
     }
 }
 
+function showLoading() {
+    document.getElementById('loading').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loading').classList.remove('active');
+}
 
 async function searchAddress(query) {
+    showLoading();
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
 
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
@@ -31,6 +39,7 @@ async function searchAddress(query) {
         throw new Error('Adresse nicht gefunden');
     }
 
+    hideLoading();
     return data[0];
 }
 
@@ -166,7 +175,8 @@ function parkingIcon(parkingObject) {
     return icon;
 }
 
-async function loadParkingData(lat, lon, radius, map, config) {
+async function loadParkingData(lat, lon, radius, map, markerLayer, config) {
+    showLoading();
     const query = `
 [out:json];
 (
@@ -179,8 +189,6 @@ async function loadParkingData(lat, lon, radius, map, config) {
 );
 out center;
 `;
-
-    document.getElementById('loading').style.display = 'block';
 
     const data = await fetchWithCache(lat, lon, radius, query, config);
 
@@ -207,33 +215,49 @@ out center;
             const icon = parkingIcon(parkingObject);
 
             L.marker([pLat, pLon], { icon })
-                .addTo(map)
+                .addTo(markerLayer)
                 .bindPopup(parkingDescription);
         }
     });
 
-    document.getElementById('loading').style.display = 'none';
+    hideLoading();
 }
+
+function addParkingMarkers(lat, lon, label, radius, map, markerLayer, config) {
+    map.setView([lat, lon], 14);
+
+    markerLayer.clearLayers();
+
+    L.marker([lat, lon]).addTo(markerLayer)
+        .bindPopup(label)
+        .openPopup();
+
+    loadParkingData(lat, lon, radius, map, markerLayer, config);
+}
+
+
 
 async function init() {
     const config = await loadConfig('app-config.json');
     const radius = config.DEFAULT_SEARCH_RADIUS;
 
     const map = L.map('map').setView([52.52, 13.405], 14);
+    const markerLayer = L.layerGroup().addTo(map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-    // Standort holen
-    navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        map.setView([lat, lon], 14);
-
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('Du bist hier')
-            .openPopup();
-
-        loadParkingData(lat, lon, radius, map, config);
+    document.getElementById('locBtn').addEventListener('click', () => {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                addParkingMarkers(lat, lon, 'Du bist hier', radius, map, markerLayer, config);
+            },
+            err => {
+                alert('Standort konnte nicht abgerufen werden');
+                console.error(err);
+            }
+        );
     });
 
     document.getElementById('searchBtn').addEventListener('click', async () => {
@@ -241,13 +265,7 @@ async function init() {
         const location = await searchAddress(value);
         const lat = parseFloat(location.lat);
         const lon = parseFloat(location.lon);
-        map.setView([lat, lon], 14);
-
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup(location.display_name)
-            .openPopup();
-
-        loadParkingData(lat, lon, radius, map, config);
+        addParkingMarkers(lat, lon, location.display_name, radius, map, markerLayer, config);
     });
 }
 
