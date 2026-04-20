@@ -235,6 +235,20 @@ async function init() {
 
         loadParkingData(lat, lon, radius, map, config);
     });
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+        const value = document.getElementById('search').value;
+        const location = await searchAddress(value);
+        const lat = parseFloat(location.lat);
+        const lon = parseFloat(location.lon);
+        map.setView([lat, lon], 14);
+
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup(location.display_name)
+            .openPopup();
+
+        loadParkingData(lat, lon, radius, map, config);
+    });
 }
 
 init();
