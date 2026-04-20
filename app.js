@@ -147,6 +147,55 @@ function parkingIcon(parkingObject) {
     return icon;
 }
 
+async function loadParkingData(lat, lon, radius, map, config) {
+    const query = `
+[out:json];
+(
+  node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  way(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  relation(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
+  node(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  way(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+  relation(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
+);
+out center;
+`;
+
+    document.getElementById('loading').style.display = 'block';
+
+    const data = await fetchWithCache(lat, lon, radius, query, config);
+
+    data.elements.forEach(parkingObject => {
+        let pLat, pLon;
+
+        if (parkingObject.type === 'node') {
+            pLat = parkingObject.lat;
+            pLon = parkingObject.lon;
+        } else if (parkingObject.center) {
+            pLat = parkingObject.center.lat;
+            pLon = parkingObject.center.lon;
+        }
+
+        if (pLat && pLon) {
+            const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
+
+            let parkingDescription = 'Access: ' + parkingObject.tags?.access;
+
+            if (!isDisabledSpace) {
+                parkingDescription += '<br/>Capacity: ' + parkingObject.tags?.['capacity:disabled'];
+            }
+
+            const icon = parkingIcon(parkingObject);
+
+            L.marker([pLat, pLon], { icon })
+                .addTo(map)
+                .bindPopup(parkingDescription);
+        }
+    });
+
+    document.getElementById('loading').style.display = 'none';
+}
+
 async function init() {
     const config = await loadConfig('app-config.json');
     const radius = config.DEFAULT_SEARCH_RADIUS;
@@ -165,44 +214,7 @@ async function init() {
             .bindPopup('Du bist hier')
             .openPopup();
 
-        const query = `
-[out:json];
-(
-  node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  way(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  relation(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  node(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  way(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  relation(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-);
-out center;
-`;
-
-        fetchWithCache(lat, lon, radius, query, config)
-            .then(data => {
-                data.elements.forEach(parkingObject => {
-                    let lat, lon;
-                    if (parkingObject.type === 'node') {
-                        lat = parkingObject.lat;
-                        lon = parkingObject.lon;
-                    } else if (parkingObject.center) {
-                        lat = parkingObject.center.lat;
-                        lon = parkingObject.center.lon;
-                    }
-
-                    if (lat && lon) {
-                        const isDisabledSpace = parkingObject.tags?.parking_space === 'disabled';
-                        let parkingDescription = 'Access: ' + parkingObject.tags.access;
-                        if (!isDisabledSpace) {
-                            parkingDescription += '<br/>Capacity: ' + parkingObject.tags['capacity:disabled'];
-                        }
-                        const icon = parkingIcon(parkingObject);
-                        L.marker([lat, lon], { icon } ).addTo(map)
-                            .bindPopup(parkingDescription);
-                    }
-                });
-                document.getElementById('loading').style.display = 'none';
-            });
+        loadParkingData(lat, lon, radius, map, config);
     });
 }
 
