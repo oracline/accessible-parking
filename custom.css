@@ -112,3 +112,15 @@
     padding: .2rem .5rem;
     margin-top: 1rem;
 }
+
+#legend {
+    padding-top: 2.5rem;
+}
+
+#legend table tr > td {
+    padding: .5rem;
+}
+
+#legend table tr > td:first-child {
+    padding-right: 1rem;
+}
