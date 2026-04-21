@@ -50,7 +50,7 @@ $radius = intval($input['radius']);
 
 // --- CACHE SETUP ---
 $cacheDir = __DIR__ . '/cache/';
-$cacheTime = $config['CACHE_TIME_IN_HOURS'] *60 * 60;
+$cacheTime = $config['CACHE_TIME_IN_HOURS'] * 60 * 60;
 $cacheToleranceInMeters = $config['CACHE_TOLERANCE_IN_METERS'];
 
 if (!is_dir($cacheDir)) {
