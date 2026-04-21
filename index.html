@@ -24,6 +24,103 @@
         <div>
           <button id="loc-btn" class="btn">Use my location</button>
         </div>
+        <div id="legend">
+          <h3>Legende</h3>
+          <h4>Beschriftung in den Markern</h4>
+          <table rules=rows>
+            <tr>
+              <td>
+                ▢
+              </td>
+              <td>
+                Einzelner Stellplatz in der Karte (`amenity=parking_space`).
+                Sollte eigentlich Teil eines Parkplatzes (amenity=parking) sein.
+                Kann auch eine Kapazität > 1 haben.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Zahl
+              </td>
+              <td>
+                Anzahl an barrierefreien Stellplätzen (capacity:disabled) auf einem Parkplatz (amenity=parking).
+              </td>
+            </tr>
+            <tr>
+              <td>
+                ?
+              </td>
+              <td>
+                Wenn die Anzahl an barrierefreien Stellplätzen (capacity:disabled) auf einem Parkplatz (amenity=parking) keine Zahl ist, sondern zum Beispiel "yes" oder "unknown".
+
+              </td>
+            </tr>
+          </table>
+
+          <h4>Farben</h4>
+          <table rules=rows>
+            <tr>
+              <td class="marker-icon-default">
+                <svg width="36" height="48" viewBox="0 0 40 60">
+                  <!-- Pin shape -->
+                  <path d="M18 0C10 0 4 6 4 14c0 10 14 34 14 34s14-24 14-34C32 6 26 0 18 0z" fill="currentColor"/>
+
+                  <!-- Inner circle -->
+                  <circle cx="18" cy="14" r="10" fill="white"/>
+                </svg>
+              </td>
+              <td>
+                access nicht definiert
+              </td>
+            </tr>
+            <tr>
+              <td class="marker-icon-warning">
+                <svg width="36" height="48" viewBox="0 0 40 60">
+                  <!-- Pin shape -->
+                  <path d="M18 0C10 0 4 6 4 14c0 10 14 34 14 34s14-24 14-34C32 6 26 0 18 0z" fill="currentColor"/>
+
+                  <!-- Inner circle -->
+                  <circle cx="18" cy="14" r="10" fill="white"/>
+                </svg>
+              </td>
+              <td>
+                access=no oder access=private
+              </td>
+            </tr>
+            <tr>
+              <td class="marker-icon-success">
+                <svg width="36" height="48" viewBox="0 0 40 60">
+                  <!-- Pin shape -->
+                  <path d="M18 0C10 0 4 6 4 14c0 10 14 34 14 34s14-24 14-34C32 6 26 0 18 0z" fill="currentColor"/>
+
+                  <!-- Inner circle -->
+                  <circle cx="18" cy="14" r="10" fill="white"/>
+                </svg>
+              </td>
+              <td>
+                access=yes
+              </td>
+            </tr>
+            <tr>
+              <td class="marker-icon-customers">
+                <svg width="36" height="48" viewBox="0 0 40 60">
+                  <!-- Pin shape -->
+                  <path d="M18 0C10 0 4 6 4 14c0 10 14 34 14 34s14-24 14-34C32 6 26 0 18 0z" fill="currentColor"/>
+
+                  <!-- Inner circle -->
+                  <circle cx="18" cy="14" r="10" fill="white"/>
+                </svg>
+              </td>
+              <td>
+                access hat einen Wert, der oben nicht aufgeführt ist
+              </td>
+            </tr>
+          </table>
+
+          <p>
+            <small>Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a></small>
+          </p>
+        </div>
       </div>
 
       <div id="loading">
