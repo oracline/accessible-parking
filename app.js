@@ -72,7 +72,10 @@ async function fetchWithCache(lat, lon, radius, query, config) {
 
     const res = await fetch('overpass.php', {
         method: 'POST',
-        body: query
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            lat, lon, radius
+        })
     });
 
     const text = await res.text();

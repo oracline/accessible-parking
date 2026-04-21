@@ -35,12 +35,11 @@ function fetchOverpass($query, $endpoints) {
 $config = json_decode(file_get_contents(__DIR__ . '/app-config.json'), true);
 
 // read POST body
-$query = file_get_contents('php://input');
+$input = json_decode(file_get_contents('php://input'), true);
 
-if (!$query) {
-    echo json_encode(["error" => "No query received"]);
-    exit;
-}
+$lat = floatval($input['lat']);
+$lon = floatval($input['lon']);
+$radius = intval($input['radius']);
 
 // --- CACHE SETUP ---
 $cacheDir = __DIR__ . '/cache/';
@@ -65,6 +64,18 @@ if (file_exists($cacheFile)) {
 }
 
 // --- FETCH FROM OVERPASS ---
+$query = "
+[out:json];
+(
+  node(around:$radius,$lat,$lon)[\"amenity\"=\"parking_space\"][\"parking_space\"=\"disabled\"];
+  way(around:$radius,$lat,$lon)[\"amenity\"=\"parking_space\"][\"parking_space\"=\"disabled\"];
+  relation(around:$radius,$lat,$lon)[\"amenity\"=\"parking_space\"][\"parking_space\"=\"disabled\"];
+  node(around:$radius,$lat,$lon)[\"amenity\"=\"parking\"][\"capacity:disabled\"];
+  way(around:$radius,$lat,$lon)[\"amenity\"=\"parking\"][\"capacity:disabled\"];
+  relation(around:$radius,$lat,$lon)[\"amenity\"=\"parking\"][\"capacity:disabled\"];
+);
+out center;
+";
 
 $response = fetchOverpass($query, $config['ENDPOINTS']);
 
