@@ -3,6 +3,6 @@
     "USE_LOCAL_DATA": true,
     "LOCAL_DATA_SOURCE": "data/exported-eg-from-overpass-turbo.json",
     "ENDPOINTS": [],
-    "CACHE_TIME_IN_MINUTES": 120,
+    "CACHE_TIME_IN_HOURS": 5,
     "CACHE_TOLERANCE_IN_METERS": 1000
 }
