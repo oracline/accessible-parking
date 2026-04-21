@@ -62,7 +62,7 @@ async function fetchWithCache(lat, lon, radius, config) {
         const parsed = JSON.parse(cached);
 
         // check expiry
-        if (Date.now() - parsed.timestamp < config.CACHE_TIME_IN_MINUTES * 60 * 1000) {
+        if (Date.now() - parsed.timestamp < config.CACHE_TIME_IN_HOURS * 60 * 60 * 1000) {
             console.log('⚡ using cache');
             return parsed.data;
         }
