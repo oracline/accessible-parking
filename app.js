@@ -47,7 +47,7 @@ function getCacheKey(lat, lon, radius) {
     return `parking_${lat.toFixed(3)}_${lon.toFixed(3)}_${radius}`;
 }
 
-async function fetchWithCache(lat, lon, radius, query, config) {
+async function fetchWithCache(lat, lon, radius, config) {
     if (config.USE_LOCAL_DATA) {
         const res = await fetch(config.LOCAL_DATA_SOURCE);
 
@@ -169,20 +169,8 @@ function buildPopupContent(parkingObject) {
 
 async function loadParkingData(lat, lon, radius, map, markerLayer, config) {
     showLoading();
-    const query = `
-[out:json];
-(
-  node(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  way(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  relation(around:${radius},${lat},${lon})["amenity"="parking_space"]["parking_space"="disabled"];
-  node(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  way(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-  relation(around:${radius},${lat},${lon})["amenity"="parking"]["capacity:disabled"];
-);
-out center;
-`;
 
-    const data = await fetchWithCache(lat, lon, radius, query, config);
+    const data = await fetchWithCache(lat, lon, radius, config);
 
     data.elements.forEach(parkingObject => {
         if (['no', '0'].includes(parkingObject.tags['capacity:disabled'])) {
