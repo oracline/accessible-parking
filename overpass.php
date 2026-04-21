@@ -32,6 +32,13 @@ function fetchOverpass($query, $endpoints) {
     return false;
 }
 
+function cacheKey($lat, $lon, $radius, $cacheToleranceInMeters) {
+    $latRounded = round($lat/$cacheToleranceInMeters, 5) * $cacheToleranceInMeters;
+    $lonRounded = round($lon/$cacheToleranceInMeters, 5) * $cacheToleranceInMeters;
+
+    return md5("r{$radius}_{$latRounded}_{$lonRounded}");
+}
+
 $config = json_decode(file_get_contents(__DIR__ . '/app-config.json'), true);
 
 // read POST body
@@ -44,13 +51,13 @@ $radius = intval($input['radius']);
 // --- CACHE SETUP ---
 $cacheDir = __DIR__ . '/cache/';
 $cacheTime = $config['CACHE_TIME_IN_MINUTES'] * 60;
+$cacheToleranceInMeters = $config['CACHE_TOLERANCE_IN_METERS'];
 
 if (!is_dir($cacheDir)) {
     mkdir($cacheDir, 0755, true);
 }
 
-// use query hash as key
-$key = md5($query);
+$key = cacheKey($lat, $lon, $radius, $cacheToleranceInMeters);
 $cacheFile = $cacheDir . $key . '.json';
 
 // --- CACHE HIT ---
