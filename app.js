@@ -61,13 +61,19 @@ async function fetchWithCache(lat, lon, radius, config) {
     if (cached) {
         const parsed = JSON.parse(cached);
 
-        // check expiry
-        if (Date.now() - parsed.timestamp < config.CACHE_TIME_IN_HOURS * 60 * 60 * 1000) {
+        const isFresh = Date.now() - parsed.timestamp < config.CACHE_TIME_IN_HOURS * 60 * 60 * 1000;
+
+        const isValid = parsed.data
+              && !parsed.data.error
+              && parsed.data.elements;
+
+        if (isFresh && isValid) {
             console.log('⚡ using cache');
             return parsed.data;
+        } else {
+            console.warn('Ignoring invalid cache');
         }
     }
-
     console.log('🌐 fetching from API');
 
     const res = await fetch('overpass.php', {
