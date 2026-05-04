@@ -80,7 +80,20 @@ async function fetchWithCache(lat, lon, radius, config) {
 
     const text = await res.text();
 
-    const data = JSON.parse(text);
+    let data;
+
+    try {
+        data = JSON.parse(text);
+    } catch (e) {
+        console.error('Invalid JSON:', text);
+        throw e;
+    }
+
+    // DO NOT cache errors or invalid data
+    if (!data || data.error || !data.elements) {
+        console.warn('Skipping cache due to invalid response:', data);
+        return data;
+    }
 
 
     localStorage.setItem(key, JSON.stringify({
