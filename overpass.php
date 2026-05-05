@@ -36,7 +36,7 @@ function cacheKey($lat, $lon, $radius, $cacheToleranceInMeters) {
     $latRounded = round($lat/$cacheToleranceInMeters, 5) * $cacheToleranceInMeters;
     $lonRounded = round($lon/$cacheToleranceInMeters, 5) * $cacheToleranceInMeters;
 
-    return md5("r{$radius}_{$latRounded}_{$lonRounded}");
+    return "parking_{$latRounded}_{$lonRounded}_{$radius}";
 }
 
 $config = json_decode(file_get_contents(__DIR__ . '/app-config.json'), true);
