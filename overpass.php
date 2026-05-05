@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 
@@ -100,7 +98,6 @@ if ($response === false) {
 // --- SAVE CACHE ---
 file_put_contents($cacheFile, $response);
 
-// optional debug header
 header('X-Cache: MISS');
 
 // --- RETURN ---
