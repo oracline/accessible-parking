@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 
@@ -11,14 +9,20 @@ function fetchOverpass($query, $endpoints) {
         $options = [
             "http" => [
                 "method" => "POST",
-                "header" => "Content-Type: text/plain\r\n",
+                "header" =>
+                    "Content-Type: text/plain\r\n" .
+                    "User-Agent: AccessibleParkingApp/1.0 (caroline@loebhard.com)\r\n",
                 "content" => $query,
-                "timeout" => 10
+                "timeout" => 50
             ]
         ];
 
         $context = stream_context_create($options);
         $response = @file_get_contents($url, false, $context);
+        if ($response === false) {
+            $err = error_get_last();
+            error_log("FAILED: " . json_encode($err));
+        }
 
         if ($response !== false) {
             error_log("Success with: $url");
@@ -36,7 +40,7 @@ function cacheKey($lat, $lon, $radius, $cacheToleranceInMeters) {
     $latRounded = round($lat/$cacheToleranceInMeters, 5) * $cacheToleranceInMeters;
     $lonRounded = round($lon/$cacheToleranceInMeters, 5) * $cacheToleranceInMeters;
 
-    return md5("r{$radius}_{$latRounded}_{$lonRounded}");
+    return "parking_{$latRounded}_{$lonRounded}_{$radius}";
 }
 
 $config = json_decode(file_get_contents(__DIR__ . '/app-config.json'), true);
@@ -100,7 +104,6 @@ if ($response === false) {
 // --- SAVE CACHE ---
 file_put_contents($cacheFile, $response);
 
-// optional debug header
 header('X-Cache: MISS');
 
 // --- RETURN ---
