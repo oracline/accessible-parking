@@ -19,6 +19,10 @@ function fetchOverpass($query, $endpoints) {
 
         $context = stream_context_create($options);
         $response = @file_get_contents($url, false, $context);
+        if ($response === false) {
+            $err = error_get_last();
+            error_log("FAILED: " . json_encode($err));
+        }
 
         if ($response !== false) {
             error_log("Success with: $url");
