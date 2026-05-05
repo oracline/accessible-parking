@@ -13,7 +13,7 @@ function fetchOverpass($query, $endpoints) {
                     "Content-Type: text/plain\r\n" .
                     "User-Agent: AccessibleParkingApp/1.0 (caroline@loebhard.com)\r\n",
                 "content" => $query,
-                "timeout" => 10
+                "timeout" => 50
             ]
         ];
 
